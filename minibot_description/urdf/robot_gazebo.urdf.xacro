@@ -15,6 +15,7 @@
     <!-- insert robot base -->
     <xacro:insert_robot prefix="$(arg prefix)"/>
     <xacro:insert_ros2_control prefix="$(arg prefix)" is_sim="$(arg is_sim)" robot_port_name="$(arg robot_port_name)" robot_baudrate="$(arg robot_baudrate)"/>
+    <xacro:insert_gazebo prefix="$(arg prefix)"/>
 
     <!-- insert ydlidar_x2 lidar -->
     <link name="${prefix}ydlidar_lidar_mount">
