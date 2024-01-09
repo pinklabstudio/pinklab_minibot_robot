@@ -1,0 +1,20 @@
+<?xml version='1.0' ?>
+
+<launch>
+    <arg name="prefix" default=""/>
+    <arg name="lidar_model" default="hokuyo"/>
+    <arg name="lidar_port_name" default="/dev/ttyLidar"/>
+    <arg name="lidar_baudrate" default="57600"/>
+    <arg name="robot_port_name" default="/dev/ttyArduino"/>
+    <arg name="robot_baudrate" default="500000"/>
+    <arg name="robot_description" default="$(command 'xacro $(find-pkg-share minibot_description)/urdf/robot.urdf.xacro')"/>
+    <arg name="robot_controllers" default="$(find-pkg-share minibot_bringup)/config/minibot_controllers.yaml"/>
+    <arg name="params_file" default="$(find-pkg-share minibot_bringup)/config/ydlidar.yaml" />
+
+
+    <node pkg="robot_state_publisher" exec="robot_state_publisher">
+        <param name='robot_description' type="str" value='$(var robot_description)'/>
+    </node>
+
+
+</launch>    
