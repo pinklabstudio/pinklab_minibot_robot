@@ -89,7 +89,7 @@ class Minibotserial(Node):
 
     def cmd_callback(self, msg):
          self.get()
-         self.hw_commands = [msg.linear.x , msg.linear.x ] #기본 cmd_vel은 liner.x가 0.5이어서 너무빨라서 5를 나누었다
+         self.hw_commands = [msg.linear.x / 5, msg.linear.x / 5] #기본 cmd_vel은 liner.x가 0.5이어서 너무빨라서 5를 나누었다
          if msg.angular.z != 0:
             self.hw_commands = [-msg.angular.z / 10, msg.angular.z / 10]  # 10으로 나눔
          self.wheel()
@@ -158,20 +158,18 @@ class Minibotserial(Node):
         if l_pos_enc - l_last_enc > 1000 or l_pos_enc - l_last_enc < -1000:
             pass
         else:
-            self.hw_positions[0] = (l_pos_enc - l_last_enc) / 44.0 / 28.0 * (2.0 * np.pi) * -1.0 
+            self.hw_positions[0] = (l_pos_enc - l_last_enc) / 44.0 / 56.0 * (2.0 * np.pi) * -1.0 
 
         if r_pos_enc - r_last_enc > 1000 or r_pos_enc - r_last_enc < - 1000:
             pass
         else: 
-            self.hw_positions[1] = (r_pos_enc - r_last_enc) / 44.0 / 28.0 * (2.0 * np.pi)
+            self.hw_positions[1] = (r_pos_enc - r_last_enc) / 44.0 / 56.0 * (2.0 * np.pi)
 
         self.l_last_enc = l_pos_enc
         self.r_last_enc = r_pos_enc
 
-        print(self.hw_positions)
-
-        delta_distance = (self.hw_positions[0] + self.hw_positions[1]) / 2.0 *0.1
-        delta_theta = (self.hw_positions[1] - self.hw_positions[0]) / 28.0 * 2 * np.pi
+        delta_distance = (self.hw_positions[0] + self.hw_positions[1]) / 2 * 3.5 * 0.01
+        delta_theta = (self.hw_positions[1] - self.hw_positions[0]) / 20
         
         trans_vel = delta_distance
         orient_vel = delta_theta
