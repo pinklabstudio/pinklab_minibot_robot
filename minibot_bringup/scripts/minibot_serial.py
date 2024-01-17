@@ -37,7 +37,7 @@ class OdomVel(object):
     w = 0.0
 
 class Joint(object):
-    joint_name = ['wheel_left_joint', 'wheel_right_joint']
+    joint_name = ['l_wheel_joint', 'r_wheel_joint']
     joint_pos = [0.0, 0.0]
     joint_vel = [0.0, 0.0]
 
@@ -52,7 +52,7 @@ class Minibotserial(Node):
 
         self.odom_pub = self.create_publisher(Odometry, '/odom', 10)
         self.cmd_sub = self.create_subscription(Twist, '/cmd_vel', self.cmd_callback, 10)
-        # self.pub_joint_states = self.create_publisher( JointState, 'joint_states', 10)
+        self.pub_joint_states = self.create_publisher( JointState, 'joint_states', 10)
         
         self.l_lamp = 0
         self.r_lamp = 0
@@ -81,7 +81,7 @@ class Minibotserial(Node):
     def update_robot(self):
         self.get()
         self.update_odometry(self.l_pos_enc, self.r_pos_enc, self.l_last_enc, self.r_last_enc)
-        #self.updateJointStates(self.l_pos_enc, self.r_pos_enc, self.l_last_enc, self.r_last_enc)
+        #self.updateJointStates()
         # if self.cnt == 50:
         #     self.stop_wheel()
 
@@ -101,7 +101,7 @@ class Minibotserial(Node):
         return readed
     
     def wheel(self):
-        l_cmd = (self.hw_commands[0] * 44.0 / (2.0 * np.pi) * 56.0) * -1.0
+        l_cmd = (self.hw_commands[0] * 44.0 / (2.0 * np.pi) * 56.0) * -1.0 # 
         r_cmd = (self.hw_commands[1] * 44.0 / (2.0 * np.pi) * 56.0)
         self.send_comand(int(l_cmd), int(r_cmd), self.l_lamp, self.r_lamp)
 
@@ -165,6 +165,7 @@ class Minibotserial(Node):
         else: 
             self.hw_positions[1] = (r_pos_enc - r_last_enc) / 44.0 / 56.0 * (2.0 * np.pi)
 
+        
         self.l_last_enc = l_pos_enc
         self.r_last_enc = r_pos_enc
 
@@ -185,6 +186,8 @@ class Minibotserial(Node):
 
         self.odom_pose.x += d_x 
         self.odom_pose.y += d_y 
+
+        print(self.odom_pose.x)
 
         odom_orientation_quat = quaternion_from_euler(0, 0, self.odom_pose.theta)
         
@@ -223,18 +226,18 @@ class Minibotserial(Node):
         odom.twist.twist.linear.z = self.odom_vel.w
         self.odom_pub.publish(odom)
 
-    # def updateJointStates(self, l_pos_enc, r_pos_enc, l_last_enc, r_last_enc):
-    #     wheel_ang_left = odo_l / self.wheel_radius
-    #     wheel_ang_right = odo_r / self.wheel_radius
+    # def updateJointStates(self):
+    #     wheel_ang_left = self.hw_positions[0] * 100
+    #     wheel_ang_right = self.hw_positions[1] * 100
 
-    #     wheel_ang_vel_left = (trans_vel - (self.wheel_base / 2.0) * orient_vel) / self.wheel_radius
-    #     wheel_ang_vel_right = (trans_vel + (self.wheel_base / 2.0) * orient_vel) / self.wheel_radius
+    #     wheel_ang_vel_left = 0.1 #(trans_vel - (self.wheel_base / 2.0) * orient_vel) / self.wheel_radius
+    #     wheel_ang_vel_right = 0.1#(trans_vel + (self.wheel_base / 2.0) * orient_vel) / self.wheel_radius
 
     #     self.joint.joint_pos = [wheel_ang_left, wheel_ang_right]
     #     self.joint.joint_vel = [wheel_ang_vel_left, wheel_ang_vel_right]
 
     #     joint_states = JointState()
-    #     joint_states.header.frame_id = "base_link"
+    #     joint_states.header.frame_id = ""
     #     joint_states.header.stamp = self.get_clock().now().to_msg()
     #     joint_states.name = self.joint.joint_name
     #     joint_states.position = self.joint.joint_pos
