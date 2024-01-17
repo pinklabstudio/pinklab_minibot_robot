@@ -15,7 +15,13 @@ install(
     config
     launch
     rviz
+    scripts
   DESTINATION share/${PROJECT_NAME}
+)
+
+install(PROGRAMS
+  scripts/minibot_serial.py
+  DESTINATION lib/${PROJECT_NAME}
 )
 
 if(BUILD_TESTING)

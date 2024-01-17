@@ -1,7 +1,9 @@
+#!/usr/bin/env python3
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
-from geometry_msgs.msg import Twist, Pose, Vector3, Point, Quaternion
+from geometry_msgs.msg import Twist
+from sensor_msgs.msg import JointState
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import TransformStamped
 
@@ -50,12 +52,14 @@ class Minibotserial(Node):
 
         self.odom_pub = self.create_publisher(Odometry, '/odom', 10)
         self.cmd_sub = self.create_subscription(Twist, '/cmd_vel', self.cmd_callback, 10)
+        # self.pub_joint_states = self.create_publisher( JointState, 'joint_states', 10)
         
         self.l_lamp = 0
         self.r_lamp = 0
         
         self.odom_pose = OdomPose()
         self.odom_vel = OdomVel()
+        self.joint = Joint()
         self.odom_broadcaster = TransformBroadcaster(self)
 
         self.odom_pose.pre_timestamp = self.get_clock().now().to_msg()
@@ -67,6 +71,8 @@ class Minibotserial(Node):
         self.recv_buf = None #np.zeros(20, dtype=np.uint8)
         self.last_distance = 0
 
+        self.cnt = 0
+
         self.create_timer(0.01, self.update_robot)
         self.get()
         self.enable_motors()
@@ -75,13 +81,19 @@ class Minibotserial(Node):
     def update_robot(self):
         self.get()
         self.update_odometry(self.l_pos_enc, self.r_pos_enc, self.l_last_enc, self.r_last_enc)
+        #self.updateJointStates(self.l_pos_enc, self.r_pos_enc, self.l_last_enc, self.r_last_enc)
+        # if self.cnt == 50:
+        #     self.stop_wheel()
+
+        # self.cnt += 1
 
     def cmd_callback(self, msg):
          self.get()
-         self.hw_commands = [msg.linear.x*10 * 0.5, msg.linear.x*10 * 0.5]
+         self.hw_commands = [msg.linear.x , msg.linear.x ] #기본 cmd_vel은 liner.x가 0.5이어서 너무빨라서 5를 나누었다
          if msg.angular.z != 0:
-            self.hw_commands = [-msg.angular.z*10 / 4 , msg.angular.z*10 / 4]
+            self.hw_commands = [-msg.angular.z / 10, msg.angular.z / 10]  # 10으로 나눔
          self.wheel()
+         self.cnt = 0
 
     def read(self, size=1, timeout=None):
         self.ser.timeout = timeout
@@ -91,6 +103,11 @@ class Minibotserial(Node):
     def wheel(self):
         l_cmd = (self.hw_commands[0] * 44.0 / (2.0 * np.pi) * 56.0) * -1.0
         r_cmd = (self.hw_commands[1] * 44.0 / (2.0 * np.pi) * 56.0)
+        self.send_comand(int(l_cmd), int(r_cmd), self.l_lamp, self.r_lamp)
+
+    def stop_wheel(self):
+        l_cmd = 0
+        r_cmd = 0
         self.send_comand(int(l_cmd), int(r_cmd), self.l_lamp, self.r_lamp)
 
     def enable_motors(self):
@@ -111,7 +128,6 @@ class Minibotserial(Node):
         command[8] = l_lamp
         command[9] = r_lamp
         command[12] =  np.uint8(sum(command[2:12]))
-        print("sned")
         self.ser.write(bytes(command))
         self.get_logger().info('send!!')
 
@@ -142,18 +158,20 @@ class Minibotserial(Node):
         if l_pos_enc - l_last_enc > 1000 or l_pos_enc - l_last_enc < -1000:
             pass
         else:
-            self.hw_positions[0] = (l_pos_enc - l_last_enc) / 44.0 / 56.0 * (2.0 * np.pi) * -1.0 
+            self.hw_positions[0] = (l_pos_enc - l_last_enc) / 44.0 / 28.0 * (2.0 * np.pi) * -1.0 
 
         if r_pos_enc - r_last_enc > 1000 or r_pos_enc - r_last_enc < - 1000:
             pass
         else: 
-            self.hw_positions[1] = (r_pos_enc - r_last_enc) / 44.0 / 56.0 * (2.0 * np.pi)
+            self.hw_positions[1] = (r_pos_enc - r_last_enc) / 44.0 / 28.0 * (2.0 * np.pi)
 
         self.l_last_enc = l_pos_enc
         self.r_last_enc = r_pos_enc
 
+        print(self.hw_positions)
+
         delta_distance = (self.hw_positions[0] + self.hw_positions[1]) / 2.0 *0.1
-        delta_theta = (self.hw_positions[1] - self.hw_positions[0]) / 56.0 * 2 * np.pi / 2
+        delta_theta = (self.hw_positions[1] - self.hw_positions[0]) / 28.0 * 2 * np.pi
         
         trans_vel = delta_distance
         orient_vel = delta_theta
@@ -171,13 +189,10 @@ class Minibotserial(Node):
         self.odom_pose.y += d_y 
 
         odom_orientation_quat = quaternion_from_euler(0, 0, self.odom_pose.theta)
+        
         self.odom_vel.x = trans_vel
         self.odom_vel.y = 0.
         self.odom_vel.w = orient_vel
-
-        odom = Odometry()
-        odom.header.frame_id = "odom"
-        odom.child_frame_id = "base_footprint"
 
         t = TransformStamped()
         t.header.stamp = self.get_clock().now().to_msg()
@@ -191,7 +206,10 @@ class Minibotserial(Node):
         t.transform.rotation.z = odom_orientation_quat[2]
         t.transform.rotation.w = odom_orientation_quat[3]
         self.odom_broadcaster.sendTransform(t)
-      
+
+        odom = Odometry()
+        odom.header.frame_id = "odom"
+        odom.child_frame_id = "base_footprint"
         odom.header.stamp = self.get_clock().now().to_msg()
         odom.pose.pose.position.x = self.odom_pose.x
         odom.pose.pose.position.y = self.odom_pose.y
@@ -206,7 +224,27 @@ class Minibotserial(Node):
         odom.twist.twist.linear.z = 0.
         odom.twist.twist.linear.z = self.odom_vel.w
         self.odom_pub.publish(odom)
-            
+
+    # def updateJointStates(self, l_pos_enc, r_pos_enc, l_last_enc, r_last_enc):
+    #     wheel_ang_left = odo_l / self.wheel_radius
+    #     wheel_ang_right = odo_r / self.wheel_radius
+
+    #     wheel_ang_vel_left = (trans_vel - (self.wheel_base / 2.0) * orient_vel) / self.wheel_radius
+    #     wheel_ang_vel_right = (trans_vel + (self.wheel_base / 2.0) * orient_vel) / self.wheel_radius
+
+    #     self.joint.joint_pos = [wheel_ang_left, wheel_ang_right]
+    #     self.joint.joint_vel = [wheel_ang_vel_left, wheel_ang_vel_right]
+
+    #     joint_states = JointState()
+    #     joint_states.header.frame_id = "base_link"
+    #     joint_states.header.stamp = self.get_clock().now().to_msg()
+    #     joint_states.name = self.joint.joint_name
+    #     joint_states.position = self.joint.joint_pos
+    #     joint_states.velocity = self.joint.joint_vel
+    #     joint_states.effort = []
+
+    #     self.pub_joint_states.publish(joint_states)
+                
 
 def main(args=None):
     rclpy.init(args=args)

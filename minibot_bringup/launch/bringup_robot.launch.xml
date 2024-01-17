@@ -16,5 +16,11 @@
         <param name='robot_description' type="str" value='$(var robot_description)'/>
     </node>
 
+    <node pkg="joint_state" exec="robot_state_publisher">
+        <param name='robot_description' type="str" value='$(var robot_description)'/>
+    </node>
+
+    <node pkg="minibot_bringup" exec="minibot_serial.py"/>
+
 
 </launch>    
