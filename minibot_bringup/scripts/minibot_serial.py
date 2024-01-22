@@ -91,7 +91,7 @@ class Minibotserial(Node):
          self.get()
          self.hw_commands = [msg.linear.x / 5, msg.linear.x / 5] #기본 cmd_vel은 liner.x가 0.5이어서 너무빨라서 5를 나누었다
          if msg.angular.z != 0:
-            self.hw_commands = [-msg.angular.z / 10, msg.angular.z / 10]  # 10으로 나눔
+            self.hw_commands = [-msg.angular.z / 10 , msg.angular.z / 10]  # 10으로 나눔
          self.wheel()
          self.cnt = 0
 
@@ -101,7 +101,7 @@ class Minibotserial(Node):
         return readed
     
     def wheel(self):
-        l_cmd = (self.hw_commands[0] * 44.0 / (2.0 * np.pi) * 56.0) * -1.0 # 
+        l_cmd = (self.hw_commands[0] * 44.0 / (2.0 * np.pi) * 56.0) * -1.0 #1/10 회전을 라디안으로 
         r_cmd = (self.hw_commands[1] * 44.0 / (2.0 * np.pi) * 56.0)
         self.send_comand(int(l_cmd), int(r_cmd), self.l_lamp, self.r_lamp)
 
@@ -155,28 +155,30 @@ class Minibotserial(Node):
         self.r_lamp = self.r_lamp_val
         
     def update_odometry(self, l_pos_enc, r_pos_enc, l_last_enc, r_last_enc):
-        if l_pos_enc - l_last_enc > 1000 or l_pos_enc - l_last_enc < -1000:
+        if l_pos_enc - l_last_enc > 1000 or l_pos_enc - l_last_enc < -1000: #2의 보수 건너뛰기
             pass
         else:
-            self.hw_positions[0] = (l_pos_enc - l_last_enc) / 44.0 / 56.0 * (2.0 * np.pi) * -1.0 
+            self.hw_positions[0] = (l_pos_enc - l_last_enc) / 44.0 / 56.0 * (2.0 * np.pi) * -1.0# 펄스 차이를 회전각도 으로 
 
         if r_pos_enc - r_last_enc > 1000 or r_pos_enc - r_last_enc < - 1000:
             pass
         else: 
             self.hw_positions[1] = (r_pos_enc - r_last_enc) / 44.0 / 56.0 * (2.0 * np.pi)
-
-        
         self.l_last_enc = l_pos_enc
         self.r_last_enc = r_pos_enc
 
-        delta_distance = (self.hw_positions[0] + self.hw_positions[1]) / 2 * 3.5 * 0.01
-        delta_theta = (self.hw_positions[1] - self.hw_positions[0]) / 20
+        if self.hw_positions[0] > 1:
+            self.send_comand(int(0), int(0), self.l_lamp, self.r_lamp)
+            self.hw_positions[0] = 0
+
+        delta_distance = (self.hw_positions[0] + self.hw_positions[1]) / 2 * 3.5 * 0.01 #3.5는 원의 반지름 0.01은 센티미터로
+        delta_theta = (self.hw_positions[1] - self.hw_positions[0]) / 5.6
         
         trans_vel = delta_distance
         orient_vel = delta_theta
 
         self.odom_pose.timestamp = self.get_clock().now().to_msg()
-        dt = (self.odom_pose.timestamp.sec - self.odom_pose.pre_timestamp.sec) + (self.odom_pose.timestamp.nanosec - self.odom_pose.pre_timestamp.nanosec)
+        #dt = (self.odom_pose.timestamp.sec - self.odom_pose.pre_timestamp.sec) + (self.odom_pose.timestamp.nanosec - self.odom_pose.pre_timestamp.nanosec)
 
         self.odom_pose.pre_timestamp = self.odom_pose.timestamp
         self.odom_pose.theta += orient_vel #* dt
@@ -185,12 +187,9 @@ class Minibotserial(Node):
         d_y = trans_vel * math.sin(self.odom_pose.theta)
 
         self.odom_pose.x += d_x 
-        self.odom_pose.y += d_y 
-
-        print(self.odom_pose.x)
-
+        self.odom_pose.y += d_y
         odom_orientation_quat = quaternion_from_euler(0, 0, self.odom_pose.theta)
-        
+        #print(self.odom_pose.x)
         self.odom_vel.x = trans_vel
         self.odom_vel.y = 0.
         self.odom_vel.w = orient_vel
