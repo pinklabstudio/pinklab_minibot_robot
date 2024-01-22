@@ -56,6 +56,9 @@ class Minibotserial(Node):
         
         self.l_lamp = 0
         self.r_lamp = 0
+
+        self.wheel_ang_left = 0
+        self.wheel_ang_right = 0 
         
         self.odom_pose = OdomPose()
         self.odom_vel = OdomVel()
@@ -81,7 +84,7 @@ class Minibotserial(Node):
     def update_robot(self):
         self.get()
         self.update_odometry(self.l_pos_enc, self.r_pos_enc, self.l_last_enc, self.r_last_enc)
-        #self.updateJointStates()
+        self.updateJointStates()
         if self.cnt == 50:
             self.stop_wheel()
 
@@ -170,7 +173,7 @@ class Minibotserial(Node):
 
         delta_distance = (self.hw_positions[0] + self.hw_positions[1]) / 2 * 3.5 * 0.01 #3.5는 원의 반지름 0.01은 센티미터로
         delta_theta = (self.hw_positions[1] - self.hw_positions[0]) / 5.6  # 회전각
-        print(self.hw_positions[1] - self.hw_positions[0])
+        
         trans_vel = delta_distance
         orient_vel = delta_theta
 
@@ -220,13 +223,13 @@ class Minibotserial(Node):
         self.odom_pub.publish(odom)
 
     def updateJointStates(self):
-        wheel_ang_left = self.hw_positions[0] * 2 * np.pi
-        wheel_ang_right = self.hw_positions[1] * 2 * np.pi
-
         wheel_ang_vel_left = self.hw_positions[0] * 2 * np.pi
         wheel_ang_vel_right = self.hw_positions[1] * 2 * np.pi
 
-        self.joint.joint_pos = [wheel_ang_left, wheel_ang_right]
+        self.wheel_ang_left += self.hw_positions[0] * 2 * np.pi
+        self.wheel_ang_right += self.hw_positions[1] * 2 * np.pi
+
+        self.joint.joint_pos = [self.wheel_ang_left, self.wheel_ang_right]
         self.joint.joint_vel = [wheel_ang_vel_left, wheel_ang_vel_right]
 
         joint_states = JointState()
