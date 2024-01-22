@@ -82,10 +82,10 @@ class Minibotserial(Node):
         self.get()
         self.update_odometry(self.l_pos_enc, self.r_pos_enc, self.l_last_enc, self.r_last_enc)
         #self.updateJointStates()
-        # if self.cnt == 50:
-        #     self.stop_wheel()
+        if self.cnt == 50:
+            self.stop_wheel()
 
-        # self.cnt += 1
+        self.cnt += 1
 
     def cmd_callback(self, msg):
          self.get()
@@ -158,7 +158,7 @@ class Minibotserial(Node):
         if l_pos_enc - l_last_enc > 1000 or l_pos_enc - l_last_enc < -1000: #2의 보수 건너뛰기
             pass
         else:
-            self.hw_positions[0] = (l_pos_enc - l_last_enc) / 44.0 / 56.0 * (2.0 * np.pi) * -1.0# 펄스 차이를 회전각도 으로 
+            self.hw_positions[0] = (l_pos_enc - l_last_enc) / 44.0 / 56.0 * (2.0 * np.pi) * -1.0# 펄스 차이를 회전각도로 (라디안)
 
         if r_pos_enc - r_last_enc > 1000 or r_pos_enc - r_last_enc < - 1000:
             pass
@@ -167,21 +167,15 @@ class Minibotserial(Node):
         self.l_last_enc = l_pos_enc
         self.r_last_enc = r_pos_enc
 
-        if self.hw_positions[0] > 1:
-            self.send_comand(int(0), int(0), self.l_lamp, self.r_lamp)
-            self.hw_positions[0] = 0
 
         delta_distance = (self.hw_positions[0] + self.hw_positions[1]) / 2 * 3.5 * 0.01 #3.5는 원의 반지름 0.01은 센티미터로
-        delta_theta = (self.hw_positions[1] - self.hw_positions[0]) / 5.6
-        
+        delta_theta = (self.hw_positions[1] - self.hw_positions[0]) / 5.6  # 회전각
+        print(self.hw_positions[1] - self.hw_positions[0])
         trans_vel = delta_distance
         orient_vel = delta_theta
 
         self.odom_pose.timestamp = self.get_clock().now().to_msg()
-        #dt = (self.odom_pose.timestamp.sec - self.odom_pose.pre_timestamp.sec) + (self.odom_pose.timestamp.nanosec - self.odom_pose.pre_timestamp.nanosec)
-
-        self.odom_pose.pre_timestamp = self.odom_pose.timestamp
-        self.odom_pose.theta += orient_vel #* dt
+        self.odom_pose.theta += orient_vel
 
         d_x = trans_vel * math.cos(self.odom_pose.theta) 
         d_y = trans_vel * math.sin(self.odom_pose.theta)
@@ -225,25 +219,25 @@ class Minibotserial(Node):
         odom.twist.twist.linear.z = self.odom_vel.w
         self.odom_pub.publish(odom)
 
-    # def updateJointStates(self):
-    #     wheel_ang_left = self.hw_positions[0] * 100
-    #     wheel_ang_right = self.hw_positions[1] * 100
+    def updateJointStates(self):
+        wheel_ang_left = self.hw_positions[0] * 2 * np.pi
+        wheel_ang_right = self.hw_positions[1] * 2 * np.pi
 
-    #     wheel_ang_vel_left = 0.1 #(trans_vel - (self.wheel_base / 2.0) * orient_vel) / self.wheel_radius
-    #     wheel_ang_vel_right = 0.1#(trans_vel + (self.wheel_base / 2.0) * orient_vel) / self.wheel_radius
+        wheel_ang_vel_left = self.hw_positions[0] * 2 * np.pi
+        wheel_ang_vel_right = self.hw_positions[1] * 2 * np.pi
 
-    #     self.joint.joint_pos = [wheel_ang_left, wheel_ang_right]
-    #     self.joint.joint_vel = [wheel_ang_vel_left, wheel_ang_vel_right]
+        self.joint.joint_pos = [wheel_ang_left, wheel_ang_right]
+        self.joint.joint_vel = [wheel_ang_vel_left, wheel_ang_vel_right]
 
-    #     joint_states = JointState()
-    #     joint_states.header.frame_id = ""
-    #     joint_states.header.stamp = self.get_clock().now().to_msg()
-    #     joint_states.name = self.joint.joint_name
-    #     joint_states.position = self.joint.joint_pos
-    #     joint_states.velocity = self.joint.joint_vel
-    #     joint_states.effort = []
+        joint_states = JointState()
+        joint_states.header.frame_id = ""
+        joint_states.header.stamp = self.get_clock().now().to_msg()
+        joint_states.name = self.joint.joint_name
+        joint_states.position = self.joint.joint_pos
+        joint_states.velocity = self.joint.joint_vel
+        joint_states.effort = []
 
-    #     self.pub_joint_states.publish(joint_states)
+        self.pub_joint_states.publish(joint_states)
                 
 
 def main(args=None):
