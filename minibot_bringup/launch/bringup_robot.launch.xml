@@ -12,9 +12,11 @@
     <arg name="params_file" default="$(find-pkg-share minibot_bringup)/config/ydlidar.yaml" />
 
 
-    <node pkg="robot_state_publisher" exec="robot_state_publisher">
-        <param name='robot_description' type="str" value='$(var robot_description)'/>
-    </node>
+    <include file="$(find-pkg-share minibot_description)/launch/upload_robot.launch.xml">
+        <arg name="prefix" value="$(var prefix)"/>
+        <arg name="lidar_model" value="$(var lidar_model)"/>
+    </include>
+    
 
     <node pkg="ydlidar_ros2_driver" exec="ydlidar_ros2_driver_node" output="screen">
         <param name='emulate_tty' value='True'/>

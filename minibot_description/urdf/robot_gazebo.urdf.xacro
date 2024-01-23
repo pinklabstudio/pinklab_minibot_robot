@@ -6,7 +6,7 @@
     <xacro:include filename="$(find minibot_description)/urdf/minibot_ros2_control.urdf.xacro"/>
 
     <xacro:arg name="prefix" default=""/>
-    <xacro:arg name="is_sim" default="false"/>
+    <xacro:arg name="is_sim" default="true"/>
     <xacro:arg name="robot_port_name" default="/dev/ttyArduino"/>
     <xacro:arg name="robot_baudrate" default="500000"/>
 

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
-    <xacro:macro name="insert_ros2_control" params="prefix is_sim:=^|false robot_port_name robot_baudrate">
+    <xacro:macro name="insert_ros2_control" params="prefix is_sim:=^|true robot_port_name robot_baudrate">
         <ros2_control name="${prefix}minibot_system" type="system">
             <hardware>
                 <plugin>gazebo_ros2_control/GazeboSystem</plugin>

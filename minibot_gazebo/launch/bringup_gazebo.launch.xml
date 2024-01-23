@@ -1,5 +1,4 @@
 <?xml version='1.0' ?>
-
 <launch>
     <arg name="robot_name" default="minibot"/>
     <arg name="robot_prefix" default=""/>
@@ -17,7 +16,7 @@
     
     <include file="$(find-pkg-share gazebo_ros)/launch/gzclient.launch.py"/>
     
-    <include file="$(find-pkg-share minibot_description)/launch/upload_robot.launch.py">
+    <include file="$(find-pkg-share minibot_description)/launch/upload_gazebo_robot.launch.xml">
         <arg name="is_sim" value="true"/>
         <arg name="prefix" value="$(var world_name)"/>
     </include>
