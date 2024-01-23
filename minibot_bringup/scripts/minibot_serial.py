@@ -15,6 +15,8 @@ import time
 import numpy as np
 import math
 
+import sys
+
 class motors_command(object):
     command = [0xfa, 0xfe, 0x01, 0, 0x1, 0x3, 0, 0xfa, 0xfd]
     
@@ -44,7 +46,7 @@ class Joint(object):
 class Minibotserial(Node):
     def __init__(self):
         super().__init__('serial')
-        arduino_port = '/dev/ttyUSB0'
+        arduino_port = '/dev/ttyArduino'
         baud_rate = 1000000
         self.ser = serial.Serial(arduino_port, baud_rate)
         time.sleep(3)
@@ -85,18 +87,17 @@ class Minibotserial(Node):
         self.get()
         self.update_odometry(self.l_pos_enc, self.r_pos_enc, self.l_last_enc, self.r_last_enc)
         self.updateJointStates()
-        if self.cnt == 50:
-            self.stop_wheel()
 
-        self.cnt += 1
+        # if self.cnt == 50:
+        #     self.stop_wheel()
+
+        # self.cnt += 1
 
     def cmd_callback(self, msg):
          self.get()
-         self.hw_commands = [msg.linear.x / 5, msg.linear.x / 5] #기본 cmd_vel은 liner.x가 0.5이어서 너무빨라서 5를 나누었다
-         if msg.angular.z != 0:
-            self.hw_commands = [-msg.angular.z / 10 , msg.angular.z / 10]  # 10으로 나눔
+         self.hw_commands = [msg.linear.x / 5 + -msg.angular.z / 10, msg.linear.x / 5 + msg.angular.z / 10] #기본 cmd_vel은 속도가 0.5이다 0.1로 맞추기 
          self.wheel()
-         self.cnt = 0
+         #self.cnt = 0
 
     def read(self, size=1, timeout=None):
         self.ser.timeout = timeout
@@ -119,7 +120,7 @@ class Minibotserial(Node):
         command[6] = np.uint8(sum(command[2:6]))
         self.ser.write(bytes(command))
         readed = self.read(size=20, timeout=1)
-        self.get_logger().info('모터 on!!')
+        self.get_logger().info('모self.odom_pose.x터 on!!')
 
     def send_comand(self, l_vel, r_vel, l_lamp, r_lamp):
         command = send_cmd_to_controller.command
@@ -161,7 +162,7 @@ class Minibotserial(Node):
         if l_pos_enc - l_last_enc > 1000 or l_pos_enc - l_last_enc < -1000: #2의 보수 건너뛰기
             pass
         else:
-            self.hw_positions[0] = (l_pos_enc - l_last_enc) / 44.0 / 56.0 * (2.0 * np.pi) * -1.0# 펄스 차이를 회전각도로 (라디안)
+            self.hw_positions[0] = (l_pos_enc - l_last_enc) / 44.0 / 56.0 * (2.0 * np.pi) * -1.0 # 펄스 차이를 바퀴 회전각도로(라디안)
 
         if r_pos_enc - r_last_enc > 1000 or r_pos_enc - r_last_enc < - 1000:
             pass
@@ -172,7 +173,7 @@ class Minibotserial(Node):
 
 
         delta_distance = (self.hw_positions[0] + self.hw_positions[1]) / 2 * 3.5 * 0.01 #3.5는 원의 반지름 0.01은 센티미터로
-        delta_theta = (self.hw_positions[1] - self.hw_positions[0]) / 5.6  # 회전각
+        delta_theta = (self.hw_positions[1] - self.hw_positions[0]) / 5.6  #바퀴 5.6회전 = 로봇 1바퀴회전 
         
         trans_vel = delta_distance
         orient_vel = delta_theta
@@ -186,7 +187,7 @@ class Minibotserial(Node):
         self.odom_pose.x += d_x 
         self.odom_pose.y += d_y
         odom_orientation_quat = quaternion_from_euler(0, 0, self.odom_pose.theta)
-        #print(self.odom_pose.x)
+        
         self.odom_vel.x = trans_vel
         self.odom_vel.y = 0.
         self.odom_vel.w = orient_vel
