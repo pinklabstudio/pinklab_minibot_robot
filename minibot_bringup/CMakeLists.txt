@@ -20,7 +20,7 @@ install(
 )
 
 install(PROGRAMS
-  scripts/minibot_serial.py
+  scripts/minibot_bringup.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

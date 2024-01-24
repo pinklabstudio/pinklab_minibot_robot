@@ -14,7 +14,6 @@ import time
 import numpy as np
 import math
 
-import sys
 
 class motors_command(object):
     command = [0xfa, 0xfe, 0x01, 0, 0x1, 0x3, 0, 0xfa, 0xfd]
