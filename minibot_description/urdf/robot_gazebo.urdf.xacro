@@ -3,7 +3,7 @@
     <xacro:include filename="$(find minibot_description)/urdf/common/inertia_macro.urdf.xacro"/>
     <xacro:include filename="$(find minibot_description)/urdf/minibot.urdf.xacro"/>
     <xacro:include filename="$(find minibot_description)/urdf/minibot_gazebo.urdf.xacro"/>
-    <xacro:include filename="$(find minibot_description)/urdf/minibot_ros2_control.urdf.xacro"/>
+    <xacro:include filename="$(find minibot_description)/urdf/minibot_ros2_control_gazebo.urdf.xacro"/>
 
     <xacro:arg name="prefix" default=""/>
     <xacro:arg name="is_sim" default="true"/>

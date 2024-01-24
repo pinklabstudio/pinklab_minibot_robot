@@ -18,7 +18,7 @@
     
     <include file="$(find-pkg-share minibot_description)/launch/upload_gazebo_robot.launch.xml">
         <arg name="is_sim" value="true"/>
-        <arg name="prefix" value="$(var world_name)"/>
+        <arg name="prefix" value=""/>
     </include>
 
     <node pkg="gazebo_ros" exec="spawn_entity.py" name='spawn_robot' output='screen' args="-entity $(var robot_name) -topic robot_description -timeout 20.0 -x 0.0 -y 0.0 -package_to_model">
