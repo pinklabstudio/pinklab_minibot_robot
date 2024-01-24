@@ -3,21 +3,15 @@
 <launch>
     <arg name="prefix" default=""/>
     <arg name="lidar_model" default="hokuyo"/>
-    <arg name="lidar_port_name" default="/dev/ttyLidar"/>
-    <arg name="lidar_baudrate" default="57600"/>
     <arg name="robot_port_name" default="/dev/ttyArduino"/>
     <arg name="robot_baudrate" default="100000"/>
-    <arg name="robot_description" default="$(command 'xacro $(find-pkg-share minibot_description)/urdf/robot.urdf.xacro')"/>
-    <arg name="robot_controllers" default="$(find-pkg-share minibot_bringup)/config/minibot_controllers.yaml"/>
     <arg name="params_file" default="$(find-pkg-share minibot_bringup)/config/ydlidar.yaml" />
-
 
     <include file="$(find-pkg-share minibot_description)/launch/upload_robot.launch.xml">
         <arg name="prefix" value="$(var prefix)"/>
         <arg name="lidar_model" value="$(var lidar_model)"/>
     </include>
     
-
     <node pkg="ydlidar_ros2_driver" exec="ydlidar_ros2_driver_node" output="screen">
         <param name='emulate_tty' value='True'/>
         <param from="$(var params_file)"/>
