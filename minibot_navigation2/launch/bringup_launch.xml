@@ -32,7 +32,6 @@
             <arg name="params_file" value="$(var params_file)"/>
             <arg name="use_composition" value="$(var use_composition)"/>
             <arg name="use_respawn" value="$(var use_respawn)"/>
-            <arg name="container_name" value="$(var nav2_container)"/>
         </include>
 
         <include file="$(find-pkg-share minibot_navigation2)/launch/navigation_launch.xml">
@@ -41,7 +40,6 @@
             <arg name="params_file" value="$(var params_file)"/>
             <arg name="use_composition" value="$(var use_composition)"/>
             <arg name="use_respawn" value="$(var use_respawn)"/>
-            <arg name="container_name" value="$(var nav2_container)"/>
         </include>
     </group>
 
