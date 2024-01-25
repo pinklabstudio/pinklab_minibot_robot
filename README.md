@@ -9,7 +9,7 @@ PinkLab MiniBot ROS2 Packages
 
 ```shell
 $ cd ~/dev_ws/src
-$ git clone https://github.com/byeongkyu/pinklab_minibot_robot.git
+$ git clone https://github.com/elripunt/pinklab_minibot_robot.git
 $ rosdep install --from-paths src --ignore-src -r -y
 
 $ colcon build --symlink-install
