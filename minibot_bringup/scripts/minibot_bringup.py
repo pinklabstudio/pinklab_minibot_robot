@@ -48,7 +48,7 @@ class Minibotserial(Node):
         baud_rate = 1000000
         self.ser = serial.Serial(arduino_port, baud_rate)
         time.sleep(3)
-        self.get_logger().info('아두이노 연결!!')
+        self.get_logger().debug('아두이노 연결!!')
 
         self.odom_pub = self.create_publisher(Odometry, '/odom', 10)
         self.cmd_sub = self.create_subscription(Twist, '/cmd_vel', self.cmd_callback, 10)
@@ -77,9 +77,9 @@ class Minibotserial(Node):
         self.cnt = 0
 
         self.create_timer(0.01, self.update_robot)
-        self.get()
         self.enable_motors()
         time.sleep(1)
+        self.get_logger().info('minibot ready!!')
 
     def update_robot(self):
         self.get()
@@ -118,7 +118,7 @@ class Minibotserial(Node):
         command[6] = np.uint8(sum(command[2:6]))
         self.ser.write(bytes(command))
         readed = self.read(size=20, timeout=1)
-        self.get_logger().info('모self.odom_pose.x터 on!!')
+        self.get_logger().debug('모터 on!!')
 
     def send_comand(self, l_vel, r_vel, l_lamp, r_lamp):
         command = send_cmd_to_controller.command
@@ -131,7 +131,7 @@ class Minibotserial(Node):
         command[9] = r_lamp
         command[12] =  np.uint8(sum(command[2:12]))
         self.ser.write(bytes(command))
-        self.get_logger().info('send!!')
+        self.get_logger().debug('send!!')
 
     def get(self):
         command = get_state.command
