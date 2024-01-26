@@ -22,7 +22,7 @@ $ ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r cmd_vel:=ba
 $ ros2 launch minibot_bringup bringup_robot_gazebo.launch.xml world_name:=simple_building.world
 ```
 ```shell
-$ ros2 launch minibot_navigation2 bringup_launch.xml use_sim_time:=true map:=`ros2 pkg prefix minibot_navigation2`/share/minibot_navigation2/maps/simple_building.yaml
+$ ros2 launch minibot_navigation2 bringup_launch.py use_sim_time:=true map:=`ros2 pkg prefix minibot_navigation2`/share/minibot_navigation2/maps/simple_building.yaml
 ```
 ```shell
 $ rviz2 -d `ros2 pkg prefix minibot_navigation2`/share/minibot_navigation2/rviz/nav2_view.rviz
@@ -48,7 +48,7 @@ $ ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r cmd_vel:=ba
 $ ros2 launch minibot_bringup bringup_robot.launch.xml
 ```
 ```shell
-$ ros2 launch minibot_navigation2 bringup_launch.xml map:=`ros2 pkg prefix minibot_navigation2`/share/minibot_navigation2/maps/<map-name>.yaml
+$ ros2 launch minibot_navigation2 bringup_launch.py map:=`ros2 pkg prefix minibot_navigation2`/share/minibot_navigation2/maps/<map-name>.yaml
 ```
 ```shell
 $ rviz2 -d `ros2 pkg prefix minibot_navigation2`/share/minibot_navigation2/rviz/nav2_view.rviz
