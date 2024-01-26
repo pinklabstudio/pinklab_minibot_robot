@@ -9,4 +9,4 @@
         <param name="robot_description" value="$(command 'xacro $(find-pkg-share minibot_description)/urdf/robot.urdf.xacro')" />
     </node>
 
-</launch>    
+</launch> 

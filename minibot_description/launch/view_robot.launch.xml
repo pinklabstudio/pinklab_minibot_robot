@@ -4,6 +4,8 @@
     <arg name="prefix" default=""/>
     <arg name="rviz_config_file" default="$(find-pkg-share minibot_description)/rviz/view_robot.rviz"/>
 
+    <set_env name="QT_AUTO_SCREEN_SCALE_FACTOR" value="0"/>
+
     <node pkg="rviz2" exec="rviz2" output="screen" args="-d $(var rviz_config_file)">
     </node>
     
