@@ -53,6 +53,8 @@ class Minibotserial(Node):
         self.odom_pub = self.create_publisher(Odometry, '/odom', 10)
         self.cmd_sub = self.create_subscription(Twist, '/cmd_vel', self.cmd_callback, 10)
         self.pub_joint_states = self.create_publisher( JointState, 'joint_states', 10)
+
+        self.odom_broadcaster = TransformBroadcaster(self)
         
         self.l_lamp = 0
         self.r_lamp = 0
@@ -63,7 +65,6 @@ class Minibotserial(Node):
         self.odom_pose = OdomPose()
         self.odom_vel = OdomVel()
         self.joint = Joint()
-        self.odom_broadcaster = TransformBroadcaster(self)
 
         self.odom_pose.pre_timestamp = self.get_clock().now().to_msg()
         self.l_last_enc, self.r_last_enc = 0.0, 0.0
@@ -91,19 +92,19 @@ class Minibotserial(Node):
 
         # self.cnt += 1
 
+    def read(self, size=1, timeout=None):
+        self.ser.timeout = timeout
+        readed = self.ser.read(size)
+        return readed
+
     def cmd_callback(self, msg):
          self.get()
          self.hw_commands = [msg.linear.x / 5 + -msg.angular.z / 10, msg.linear.x / 5 + msg.angular.z / 10] #기본 cmd_vel은 속도가 0.5이다 0.1로 맞추기 
          self.wheel()
          #self.cnt = 0
 
-    def read(self, size=1, timeout=None):
-        self.ser.timeout = timeout
-        readed = self.ser.read(size)
-        return readed
-    
     def wheel(self):
-        l_cmd = (self.hw_commands[0] * 44.0 / (2.0 * np.pi) * 56.0) * -1.0 #1/10 회전을 라디안으로 
+        l_cmd = (self.hw_commands[0] * 44.0 / (2.0 * np.pi) * 56.0) * -1.0 # hw_commands의 값을 펄스 값으로
         r_cmd = (self.hw_commands[1] * 44.0 / (2.0 * np.pi) * 56.0)
         self.send_comand(int(l_cmd), int(r_cmd), self.l_lamp, self.r_lamp)
 
@@ -222,11 +223,11 @@ class Minibotserial(Node):
         self.odom_pub.publish(odom)
 
     def updateJointStates(self):
-        wheel_ang_vel_left = self.hw_positions[0] * 2 * np.pi
-        wheel_ang_vel_right = self.hw_positions[1] * 2 * np.pi
+        wheel_ang_vel_left = self.hw_positions[0] 
+        wheel_ang_vel_right = self.hw_positions[1] 
 
-        self.wheel_ang_left += self.hw_positions[0] * 2 * np.pi
-        self.wheel_ang_right += self.hw_positions[1] * 2 * np.pi
+        self.wheel_ang_left += self.hw_positions[0] 
+        self.wheel_ang_right += self.hw_positions[1]
 
         self.joint.joint_pos = [self.wheel_ang_left, self.wheel_ang_right]
         self.joint.joint_vel = [wheel_ang_vel_left, wheel_ang_vel_right]
