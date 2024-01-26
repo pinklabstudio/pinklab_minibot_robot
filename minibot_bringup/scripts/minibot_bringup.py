@@ -53,6 +53,8 @@ class Minibotserial(Node):
         self.odom_pub = self.create_publisher(Odometry, '/odom', 10)
         self.cmd_sub = self.create_subscription(Twist, '/cmd_vel', self.cmd_callback, 10)
         self.pub_joint_states = self.create_publisher( JointState, 'joint_states', 10)
+
+        self.odom_broadcaster = TransformBroadcaster(self)
         
         self.l_lamp = 0
         self.r_lamp = 0
@@ -63,7 +65,6 @@ class Minibotserial(Node):
         self.odom_pose = OdomPose()
         self.odom_vel = OdomVel()
         self.joint = Joint()
-        self.odom_broadcaster = TransformBroadcaster(self)
 
         self.odom_pose.pre_timestamp = self.get_clock().now().to_msg()
         self.l_last_enc, self.r_last_enc = 0.0, 0.0
