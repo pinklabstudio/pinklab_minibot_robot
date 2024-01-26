@@ -223,11 +223,11 @@ class Minibotserial(Node):
         self.odom_pub.publish(odom)
 
     def updateJointStates(self):
-        wheel_ang_vel_left = self.hw_positions[0] * 2 * np.pi
-        wheel_ang_vel_right = self.hw_positions[1] * 2 * np.pi
+        wheel_ang_vel_left = self.hw_positions[0] 
+        wheel_ang_vel_right = self.hw_positions[1] 
 
-        self.wheel_ang_left += self.hw_positions[0] * 2 * np.pi
-        self.wheel_ang_right += self.hw_positions[1] * 2 * np.pi
+        self.wheel_ang_left += self.hw_positions[0] 
+        self.wheel_ang_right += self.hw_positions[1]
 
         self.joint.joint_pos = [self.wheel_ang_left, self.wheel_ang_right]
         self.joint.joint_vel = [wheel_ang_vel_left, wheel_ang_vel_right]
