@@ -92,19 +92,19 @@ class Minibotserial(Node):
 
         # self.cnt += 1
 
+    def read(self, size=1, timeout=None):
+        self.ser.timeout = timeout
+        readed = self.ser.read(size)
+        return readed
+
     def cmd_callback(self, msg):
          self.get()
          self.hw_commands = [msg.linear.x / 5 + -msg.angular.z / 10, msg.linear.x / 5 + msg.angular.z / 10] #기본 cmd_vel은 속도가 0.5이다 0.1로 맞추기 
          self.wheel()
          #self.cnt = 0
 
-    def read(self, size=1, timeout=None):
-        self.ser.timeout = timeout
-        readed = self.ser.read(size)
-        return readed
-    
     def wheel(self):
-        l_cmd = (self.hw_commands[0] * 44.0 / (2.0 * np.pi) * 56.0) * -1.0 #1/10 회전을 라디안으로 
+        l_cmd = (self.hw_commands[0] * 44.0 / (2.0 * np.pi) * 56.0) * -1.0 # hw_commands의 값을 펄스 값으로
         r_cmd = (self.hw_commands[1] * 44.0 / (2.0 * np.pi) * 56.0)
         self.send_comand(int(l_cmd), int(r_cmd), self.l_lamp, self.r_lamp)
 
