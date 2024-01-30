@@ -9,6 +9,7 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(minibot_gazebo REQUIRED)
 find_package(minibot_description REQUIRED)
+find_package(ament_cmake_python REQUIRED)
 
 install(
   DIRECTORY
