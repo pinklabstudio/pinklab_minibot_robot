@@ -17,7 +17,7 @@
         <param from="$(var params_file)"/>
     </node>
 
-    <node pkg="minibot_bringup" exec="minibot_serial.py"/>
+    <node pkg="minibot_bringup" exec="minibot_bringup.py"/>
 
 
 </launch>    
