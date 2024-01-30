@@ -1,10 +1,11 @@
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import String
+#from std_msgs.msg import String
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import JointState
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import TransformStamped
+from std_srvs.srv import SetBool
 
 from tf2_ros import TransformBroadcaster
 from tf_transformations import quaternion_from_euler, euler_from_quaternion
@@ -53,6 +54,7 @@ class Minibotserial(Node):
         self.odom_pub = self.create_publisher(Odometry, '/odom', 10)
         self.cmd_sub = self.create_subscription(Twist, '/cmd_vel', self.cmd_callback, 10)
         self.pub_joint_states = self.create_publisher( JointState, 'joint_states', 10)
+        self.odom_reset = self.create_service(SetBool,'reset_odom', self.reset_odom_handle)
 
         self.odom_broadcaster = TransformBroadcaster(self)
         
@@ -87,10 +89,10 @@ class Minibotserial(Node):
         self.update_odometry(self.l_pos_enc, self.r_pos_enc, self.l_last_enc, self.r_last_enc)
         self.updateJointStates()
 
-        # if self.cnt == 50:
-        #     self.stop_wheel()
+        if self.cnt == 50: #cnt가 50이 될때 로봇에 cmd_vel명령이 없으면 로봇 멈추기
+            self.stop_wheel()
 
-        # self.cnt += 1
+        self.cnt += 1
 
     def read(self, size=1, timeout=None):
         self.ser.timeout = timeout
@@ -101,7 +103,7 @@ class Minibotserial(Node):
          self.get()
          self.hw_commands = [msg.linear.x / 5 + -msg.angular.z / 10, msg.linear.x / 5 + msg.angular.z / 10] #기본 cmd_vel은 속도가 0.5이다 0.1로 맞추기 
          self.wheel()
-         #self.cnt = 0
+         self.cnt = 0
 
     def wheel(self):
         l_cmd = (self.hw_commands[0] * 44.0 / (2.0 * np.pi) * 56.0) * -1.0 # hw_commands의 값을 펄스 값으로
@@ -241,7 +243,17 @@ class Minibotserial(Node):
         joint_states.effort = []
 
         self.pub_joint_states.publish(joint_states)
-                
+
+    def reset_odom_handle(self, request, response):
+        if request.data:
+            self.odom_pose.x = 0
+            self.odom_pose.y = 0
+            self.odom_pose.theta = 0
+        
+        response.success = True
+        response.message = "reset odom"
+
+        return response
 
 def main(args=None):
     rclpy.init(args=args)
