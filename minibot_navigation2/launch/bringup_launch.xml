@@ -21,6 +21,7 @@
                        'velocity_smoother']"/>
 
     <group>
+        <push-ros-namespace namespace="$(var namespace)"/>
         <node pkg="rclcpp_components" exec="component_container_isolated" name='$(var container_name)' output="screen" args="--ros-args --log-level $(var log_level)">
             <param from="$(var params_file)"/>
             <param name='map' value="$(var map)"/>
