@@ -4,10 +4,10 @@
 
 ### For Gazebo simulation
 ```shell
-$ ros2 launch minibot_bringup bringup_robot_gazebo.launch.py world_name:=simple_building.world
+$ ros2 launch minibot_bringup bringup_robot_gazebo.launch.xml world_name:=simple_building.world
 ```
 ```shell
-$ ros2 launch minibot_navigation2 map_building.launch.py use_sim_time:=true
+$ ros2 launch minibot_navigation2 map_building.launch.xml use_sim_time:=true
 ```
 ```shell
 $ rviz2 -d `ros2 pkg prefix minibot_navigation2`/share/minibot_navigation2/rviz/map_building.rviz
@@ -19,7 +19,7 @@ $ ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r cmd_vel:=ba
 
 ### For Navigation (Gazebo)
 ```shell
-$ ros2 launch minibot_bringup bringup_robot_gazebo.launch.py world_name:=simple_building.world
+$ ros2 launch minibot_bringup bringup_robot_gazebo.launch.xml world_name:=simple_building.world
 ```
 ```shell
 $ ros2 launch minibot_navigation2 bringup_launch.py use_sim_time:=true map:=`ros2 pkg prefix minibot_navigation2`/share/minibot_navigation2/maps/simple_building.yaml
@@ -31,10 +31,10 @@ $ rviz2 -d `ros2 pkg prefix minibot_navigation2`/share/minibot_navigation2/rviz/
 
 ### For Real Robot Mapping
 ```shell
-$ ros2 launch minibot_bringup bringup_robot.launch.py
+$ ros2 launch minibot_bringup bringup_robot.launch.xml
 ```
 ```shell
-$ ros2 launch minibot_navigation2 map_building.launch.py
+$ ros2 launch minibot_navigation2 map_building.launch.xml
 ```
 ```shell
 $ rviz2 -d `ros2 pkg prefix minibot_navigation2`/share/minibot_navigation2/rviz/map_building.rviz
@@ -45,7 +45,7 @@ $ ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r cmd_vel:=ba
 
 ### For Navigation (Real Robot)
 ```shell
-$ ros2 launch minibot_bringup bringup_robot.launch.py
+$ ros2 launch minibot_bringup bringup_robot.launch.xml
 ```
 ```shell
 $ ros2 launch minibot_navigation2 bringup_launch.py map:=`ros2 pkg prefix minibot_navigation2`/share/minibot_navigation2/maps/<map-name>.yaml
