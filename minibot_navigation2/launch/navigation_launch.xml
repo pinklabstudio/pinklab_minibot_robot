@@ -28,7 +28,7 @@
 
             <remap from="/tf" to="tf"/>
             <remap from="/tf_static" to="tf_static"/>
-            <remap from="cmd_vel" to="cmd_vel_nav"/>
+            <remap from="cmd_vel" to="base_controller/cmd_vel_unstamped"/>
         </composable_node>
 
         <composable_node pkg="nav2_smoother" plugin="nav2_smoother::SmootherServer" name="smoother_server">            
@@ -84,7 +84,7 @@
             <remap from="/tf" to="tf"/>
             <remap from="/tf_static" to="tf_static"/>
             <remap from="cmd_vel" to="cmd_vel_nav"/>
-            <remap from="cmd_vel_smoothed" to="cmd_vel"/>
+            <remap from="cmd_vel_smoothed" to="base_controller/cmd_vel_unstamped"/>
         </composable_node>  
 
         <composable_node pkg="nav2_lifecycle_manager" plugin="nav2_lifecycle_manager::LifecycleManager" name="lifecycle_manager_navigation">            
