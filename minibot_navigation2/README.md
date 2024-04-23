@@ -13,7 +13,7 @@ $ ros2 launch minibot_navigation2 map_building.launch.xml use_sim_time:=true
 $ rviz2 -d `ros2 pkg prefix minibot_navigation2`/share/minibot_navigation2/rviz/map_building.rviz
 ```
 ```shell
-$ ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r cmd_vel:=base_controller/cmd_vel_unstamped
+$ ros2 run teleop_twist_keyboard teleop_twist_keyboard
 ```
 
 
@@ -40,7 +40,7 @@ $ ros2 launch minibot_navigation2 map_building.launch.xml
 $ rviz2 -d `ros2 pkg prefix minibot_navigation2`/share/minibot_navigation2/rviz/map_building.rviz
 ```
 ```shell
-$ ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r cmd_vel:=base_controller/cmd_vel_unstamped
+$ ros2 run teleop_twist_keyboard teleop_twist_keyboard
 ```
 
 ### For Navigation (Real Robot)
