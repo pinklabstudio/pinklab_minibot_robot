@@ -8,7 +8,7 @@
     <arg name="params_file" default="$(find-pkg-share minibot_navigation2)/params/nav2_params.yaml"/>
     <arg name="autostart" default="True"/>
     <arg name="container_name" default="nav2_container"/>
-    <arg name="use_composition" default="True"/>
+    <arg name="use_composition" default="False"/>
     <arg name="use_respawn" default="False"/>
     <arg name="log_level" default="info"/>
     <arg name="lifecycle_nodes_local" default="['map_server', 'amcl']"/>
